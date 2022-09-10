@@ -1,3 +1,4 @@
+const { response } = require('express');
 const express = require('express');
 
 const {v4:uuidv4} = require('uuid')
@@ -11,7 +12,7 @@ app.use(express.json())
 
 function VerifyAccount(req, res, next) {
   
-  const { cpf } = req.header;
+  const { cpf } = req.headers // por essa ✔️
 
   const customer = customers.find((customer) => customer.cpf === cpf)
 
@@ -35,7 +36,7 @@ function getBalance(statement){
   return balance;
 }
 
-app.post ("/account", (req, res) => {
+app.post("/account", (req, res) => {
   
   const {cpf,name} = req.body;
 
@@ -56,7 +57,7 @@ app.post ("/account", (req, res) => {
 
 })
 
-app.post  ("/deposit", VerifyAccount,(req, res) => {
+app.post("/deposit", VerifyAccount,(req, res) => {
 
   const { description, amount } = req.body;
 
@@ -151,6 +152,28 @@ app.get("/account",VerifyAccount,(req, res) =>{
     console.log(customer)
     return res.json(customer)
 })
+
+app.delete("/account",VerifyAccount,(req, res) =>{
+  const { customer } = req
+
+  //splice
+
+  customers.splice(customer,1);
+
+  return res.status(200).json(customers)
+
+})
+
+app.get("/balance",VerifyAccount,(req, res) =>{
+
+  const { customer } = req 
+
+  const balance = getBalance(customer.statement)
+
+  return res.json(balance)
+})
+
+
 app.listen("3000", () => {
   console.log("Connect ")
 })
